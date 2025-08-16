@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Weekly Suspicious IPs Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { text-align: center; color: #333; }
+        .stats { display: flex; justify-content: space-around; margin-bottom: 20px; }
+        .card {
+            background: #f2f2f2;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-align: center;
+            width: 22%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 12px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background: #333;
+            color: white;
+        }
+        .chart {
+            text-align: center;
+            margin: 20px 0;
+        }
+        img {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Weekly Suspicious IPs Report</h1>
+
+    <!-- Summary Cards -->
+    <div class="stats">
+        <div class="card">
+            <h3>Total Requests</h3>
+            <p>{{ total_logs }}</p>
+        </div>
+        <div class="card">
+            <h3>Total Errors</h3>
+            <p>{{ total_errors }}</p>
+        </div>
+        <div class="card">
+            <h3>Suspicious IPs</h3>
+            <p>{{ suspicious_count }}</p>
+        </div>
+        <div class="card">
+            <h3>Unique IPs</h3>
+            <p>{{ unique_ips }}</p>
+        </div>
+    </div>
+
+    <!-- Charts (Rendered as images before passing to template) -->
+    <div class="chart">
+        {% if status_chart %}
+            <h3>Status Codes Distribution</h3>
+            <img src="data:image/png;base64,{{ status_chart }}" alt="Status Chart">
+        {% endif %}
+    </div>
+
+    <div class="chart">
+        {% if requests_chart %}
+            <h3>Requests Over Time</h3>
+            <img src="data:image/png;base64,{{ requests_chart }}" alt="Requests Chart">
+        {% endif %}
+    </div>
+
+    <!-- Table of Suspicious IPs -->
+    <h3>Top Suspicious IPs</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>IP</th>
+                <th>Requests</th>
+                <th>Errors</th>
+                <th>Failed Logins</th>
+                <th>Risk Score</th>
+                <th>Risk Level</th>
+                <th>Last Seen</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr>
+                <td>{{ row.ip }}</td>
+                <td>{{ row.request_count }}</td>
+                <td>{{ row.error_count }}</td>
+                <td>{{ row.failed_logins }}</td>
+                <td>{{ row.risk_score }}</td>
+                <td>{{ row.risk_level }}</td>
+                <td>{{ row.last_seen }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

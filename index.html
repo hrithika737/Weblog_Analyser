@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>📤 Upload Logs - Web Log Analyzer</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f5f7fa;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .btn-primary {
+            background-color: #283593;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #1a237e;
+        }
+        #chosenFiles {
+            background: #f1f8e9;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        nav.navbar {
+            background-color: #1a237e !important;
+        }
+        nav.navbar a.nav-link {
+            color: white !important;
+            font-weight: 500;
+        }
+        nav.navbar a.nav-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-white">📊 Web Log Analyzer</a>
+        <div>
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('landing') }}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Upload Logs</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('results') }}">Results</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Page Content -->
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h1 class="text-primary">📤 Upload Your Log Files</h1>
+        <p class="text-muted">Analyze suspicious IPs, failed logins, and traffic patterns instantly</p>
+    </div>
+
+    <div class="card p-4">
+        <form method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="fileInput" class="form-label fw-bold">Select Log Files</label>
+                <input type="file" class="form-control" name="logfile" id="fileInput" multiple required>
+            </div>
+
+            <!-- File preview list -->
+            <div id="chosenFiles" class="mb-3" style="display:none;">
+                <strong>📝 Files selected:</strong>
+                <ul id="fileNames" class="mb-0"></ul>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    📊 Analyze Logs
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('fileInput').addEventListener('change', function() {
+        let chosenFilesDiv = document.getElementById('chosenFiles');
+        let fileNamesList = document.getElementById('fileNames');
+        fileNamesList.innerHTML = "";
+
+        if (this.files.length > 0) {
+            chosenFilesDiv.style.display = 'block';
+            for (let i = 0; i < this.files.length; i++) {
+                let li = document.createElement('li');
+                li.textContent = "📄 " + this.files[i].name;
+                fileNamesList.appendChild(li);
+            }
+        } else {
+            chosenFilesDiv.style.display = 'none';
+        }
+    });
+</script>
+
+</body>
+</html>

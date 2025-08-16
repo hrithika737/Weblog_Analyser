@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Web Log Analyzer - Home</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: #333;
+        }
+        .hero-section {
+            padding: 80px 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #283593, #1a237e);
+            color: white;
+        }
+        .hero-section h1 {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+        .hero-section p {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .cta-btn {
+            background-color: #4caf50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            margin-top: 20px;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .cta-btn:hover {
+            background-color: #388e3c;
+        }
+        .hero-image {
+            margin-top: 40px;
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .info-section {
+            padding: 50px 20px;
+            text-align: center;
+        }
+        .info-section h2 {
+            color: #283593;
+            font-weight: bold;
+        }
+        .info-section p {
+            max-width: 700px;
+            margin: 10px auto;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">📊 Web Log Analyzer</a>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<div class="hero-section">
+    <h1>Log Analyzer Tool</h1>
+    <p>Analyze your server logs for suspicious activities, performance issues, and traffic patterns — all in one place.</p>
+    <a href="{{ url_for('login') }}" class="cta-btn">🚀 Start Free</a>
+    <div>
+        <img src="https://via.placeholder.com/800x400?text=Your+App+Preview" alt="App Preview" class="hero-image">
+    </div>
+</div>
+
+<!-- Info Section -->
+<div class="info-section">
+    <h2>Why Choose Our Analyzer?</h2>
+    <p>
+        Built for speed, simplicity, and actionable insights.
+        Instantly parse Apache/Nginx or custom logs, detect anomalies, track request patterns, and export detailed reports.
+    </p>
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <h4>⚡ Fast Parsing</h4>
+            <p>Upload and analyze thousands of log entries in seconds.</p>
+        </div>
+        <div class="col-md-4">
+            <h4>🔍 Deep Insights</h4>
+            <p>Identify suspicious IPs, failed logins, and traffic surges instantly.</p>
+        </div>
+        <div class="col-md-4">
+            <h4>📈 Beautiful Reports</h4>
+            <p>Export analysis in CSV and PDF formats for sharing.</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
