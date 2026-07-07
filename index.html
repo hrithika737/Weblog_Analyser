@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Upload Logs - Web Log Analyzer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        :root {
+            --ink: #17202a;
+            --muted: #65748b;
+            --line: #d9e1ec;
+            --page: #f5f7fb;
+            --accent: #0f766e;
+            --accent-dark: #115e59;
+        }
+        body {
+            background: var(--page);
+            color: var(--ink);
+            font-family: Arial, sans-serif;
+            letter-spacing: 0;
+        }
+        .navbar {
+            background: #ffffff;
+            border-bottom: 1px solid var(--line);
+        }
+        .navbar-brand {
+            color: var(--ink);
+            font-weight: 700;
+        }
+        .nav-link {
+            color: var(--muted);
+            font-weight: 600;
+        }
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--accent);
+        }
+        .page-header {
+            padding: 38px 0 22px;
+        }
+        .page-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+        .page-header p {
+            color: var(--muted);
+            margin-bottom: 0;
+        }
+        .panel {
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            box-shadow: 0 14px 40px rgba(23, 32, 42, 0.06);
+            padding: 28px;
+        }
+        .form-control {
+            border-color: var(--line);
+            min-height: 48px;
+        }
+        .form-control:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.2rem rgba(15, 118, 110, 0.14);
+        }
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            min-height: 46px;
+        }
+        .btn-primary:hover {
+            background: var(--accent-dark);
+            border-color: var(--accent-dark);
+        }
+        .selected-files {
+            background: #f8fafc;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            display: none;
+            padding: 16px;
+        }
+        .selected-files strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+        .selected-files ul {
+            color: var(--muted);
+            margin-bottom: 0;
+            padding-left: 18px;
+        }
+        .note {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+        .alert {
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('landing') }}">Web Log Analyzer</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('landing') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="{{ url_for('index') }}">Upload</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('results') }}">Results</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <header class="page-header">
+            <h1>Upload log files</h1>
+            <p>Analyze Apache or Nginx access logs and review suspicious activity in the dashboard.</p>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-4">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} mb-2">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="panel">
+            <form method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="fileInput" class="form-label fw-bold">Log files</label>
+                    <input type="file" class="form-control" name="logfile" id="fileInput" accept=".log,.txt" multiple required>
+                    <div class="note mt-2">Accepted formats: .log and .txt</div>
+                </div>
+
+                <div id="chosenFiles" class="selected-files mb-4">
+                    <strong>Selected files</strong>
+                    <ul id="fileNames"></ul>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-primary px-4">Analyze Logs</button>
+                    <a href="{{ url_for('results') }}" class="btn btn-outline-secondary px-4">View Results</a>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function() {
+            const chosenFilesDiv = document.getElementById('chosenFiles');
+            const fileNamesList = document.getElementById('fileNames');
+            fileNamesList.innerHTML = "";
+
+            if (this.files.length > 0) {
+                chosenFilesDiv.style.display = 'block';
+                Array.from(this.files).forEach(function(file) {
+                    const li = document.createElement('li');
+                    li.textContent = file.name;
+                    fileNamesList.appendChild(li);
+                });
+            } else {
+                chosenFilesDiv.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

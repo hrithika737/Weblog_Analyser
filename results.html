@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Results - Web Log Analyzer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <style>
+        :root {
+            --ink: #17202a;
+            --muted: #65748b;
+            --line: #d9e1ec;
+            --page: #f5f7fb;
+            --accent: #0f766e;
+            --accent-dark: #115e59;
+        }
+        body {
+            background: var(--page);
+            color: var(--ink);
+            font-family: Arial, sans-serif;
+            letter-spacing: 0;
+        }
+        .navbar {
+            background: #ffffff;
+            border-bottom: 1px solid var(--line);
+        }
+        .navbar-brand {
+            color: var(--ink);
+            font-weight: 700;
+        }
+        .nav-link {
+            color: var(--muted);
+            font-weight: 600;
+        }
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--accent);
+        }
+        .page-header {
+            padding: 34px 0 18px;
+        }
+        .page-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+        .page-header p {
+            color: var(--muted);
+            margin-bottom: 0;
+        }
+        .panel,
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            box-shadow: 0 14px 40px rgba(23, 32, 42, 0.06);
+        }
+        .panel {
+            padding: 22px;
+        }
+        .stat-card {
+            padding: 18px;
+            min-height: 112px;
+        }
+        .stat-card span {
+            color: var(--muted);
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .stat-card strong {
+            display: block;
+            font-size: 2rem;
+            margin-top: 8px;
+        }
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        .btn-primary:hover,
+        .view-url-btn:hover {
+            background: var(--accent-dark);
+            border-color: var(--accent-dark);
+        }
+        .form-control {
+            border-color: var(--line);
+            min-height: 42px;
+        }
+        .form-control:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.2rem rgba(15, 118, 110, 0.14);
+        }
+        .chart-wrap {
+            height: 280px;
+            position: relative;
+        }
+        table.dataTable thead th {
+            background: #17202a;
+            color: #ffffff;
+        }
+        .risk-badge {
+            border-radius: 999px;
+            display: inline-block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            min-width: 74px;
+            padding: 5px 10px;
+            text-align: center;
+        }
+        .risk-high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .risk-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .risk-low {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .view-url-btn {
+            background: var(--accent);
+            border: 0;
+            border-radius: 6px;
+            color: #ffffff;
+            cursor: pointer;
+            padding: 6px 12px;
+        }
+        .empty-state {
+            color: var(--muted);
+            margin: 0;
+            padding: 24px;
+            text-align: center;
+        }
+        .alert {
+            border-radius: 8px;
+        }
+        .modal-backdrop-custom {
+            background: rgba(15, 23, 42, 0.55);
+            display: none;
+            height: 100%;
+            left: 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1040;
+        }
+        .modal-card {
+            background: #ffffff;
+            border-radius: 8px;
+            margin: 8vh auto;
+            max-width: 620px;
+            padding: 24px;
+            width: calc(100% - 32px);
+        }
+        #modalUrl {
+            max-height: 360px;
+            overflow: auto;
+        }
+        #modalUrl li {
+            overflow-wrap: anywhere;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('landing') }}">Web Log Analyzer</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('landing') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Upload</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="{{ url_for('results') }}">Results</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container pb-5">
+        <header class="page-header d-flex flex-wrap justify-content-between gap-3 align-items-end">
+            <div>
+                <h1>Security results</h1>
+                <p>Review suspicious IPs, status-code distribution, and request activity.</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{{ url_for('download_csv') }}" class="btn btn-outline-secondary">Download CSV</a>
+                <a href="{{ url_for('download_pdf') }}" class="btn btn-outline-danger">Download PDF</a>
+            </div>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-4">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} mb-2">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="panel mb-4">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-2">
+                    <label class="form-label" for="date_from">From</label>
+                    <input id="date_from" type="date" name="date_from" value="{{ filters.date_from }}" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label" for="date_to">To</label>
+                    <input id="date_to" type="date" name="date_to" value="{{ filters.date_to }}" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="ip_filter">IP address</label>
+                    <input id="ip_filter" type="text" name="ip_filter" value="{{ filters.ip_filter }}" class="form-control" placeholder="192.168.1.10">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="url_filter">URL path</label>
+                    <input id="url_filter" type="text" name="url_filter" value="{{ filters.url_filter }}" class="form-control" placeholder="/login">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100" type="submit">Apply Filters</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <span>Total Requests</span>
+                    <strong>{{ total_logs }}</strong>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <span>Total Errors</span>
+                    <strong>{{ total_errors }}</strong>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <span>Tracked IPs</span>
+                    <strong>{{ data|length }}</strong>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <span>Unique IPs</span>
+                    <strong>{{ unique_ips }}</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="row g-3 mb-4">
+            <div class="col-lg-5">
+                <div class="panel">
+                    <h2 class="h5 fw-bold mb-3">Status distribution</h2>
+                    <div class="chart-wrap"><canvas id="statusPieChart"></canvas></div>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="panel">
+                    <h2 class="h5 fw-bold mb-3">Requests by hour</h2>
+                    <div class="chart-wrap"><canvas id="requestsLineChart"></canvas></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="d-flex flex-wrap justify-content-between gap-3 align-items-center mb-3">
+                <h2 class="h5 fw-bold mb-0">Suspicious IP review</h2>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-sm">Upload More Logs</a>
+            </div>
+            {% if data %}
+                <div class="table-responsive">
+                    <table id="suspiciousTable" class="display table table-striped table-bordered align-middle">
+                        <thead>
+                            <tr>
+                                <th>IP</th>
+                                <th>Requests</th>
+                                <th>Errors</th>
+                                <th>Login Hits</th>
+                                <th>Risk Score</th>
+                                <th>Risk Level</th>
+                                <th>Last Seen</th>
+                                <th>Visited URLs</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in data %}
+                                <tr>
+                                    <td>{{ row['ip'] }}</td>
+                                    <td>{{ row['request_count'] }}</td>
+                                    <td>{{ row['error_count'] }}</td>
+                                    <td>{{ row['failed_logins'] }}</td>
+                                    <td>{{ row['risk_score'] }}</td>
+                                    <td>
+                                        <span class="risk-badge {% if row['risk_level'] == 'HIGH' %}risk-high{% elif row['risk_level'] == 'MEDIUM' %}risk-medium{% else %}risk-low{% endif %}">
+                                            {{ row['risk_level'] }}
+                                        </span>
+                                    </td>
+                                    <td>{{ row['last_seen'] }}</td>
+                                    <td><button class="view-url-btn" data-ip="{{ row['ip'] }}" data-file="{{ row['source_file'] or 'null' }}">View</button></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="empty-state">No matching log records yet. Upload logs or adjust the filters to review activity.</p>
+            {% endif %}
+        </section>
+    </main>
+
+    <div id="urlModal" class="modal-backdrop-custom">
+        <div class="modal-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h5 fw-bold mb-0">Visited URLs</h2>
+                <button id="closeModal" class="btn btn-outline-secondary btn-sm">Close</button>
+            </div>
+            <div id="modalUrl"></div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const chartData = {{ charts|tojson }};
+
+        $(document).ready(function () {
+            if ($('#suspiciousTable').length) {
+                $('#suspiciousTable').DataTable({ pageLength: 10, order: [[4, 'desc']] });
+            }
+
+            $('.view-url-btn').on('click', function() {
+                const ip = $(this).data('ip');
+                const file = $(this).data('file');
+                $.getJSON('/get_urls/' + encodeURIComponent(ip) + '/' + encodeURIComponent(file), function(urls) {
+                    const container = $('#modalUrl').empty();
+                    const list = $('<ul class="mb-0"></ul>');
+                    if (urls.length === 0) {
+                        list.append($('<li></li>').text('No URLs found'));
+                    } else {
+                        urls.forEach(function(url) {
+                            list.append($('<li></li>').text(url));
+                        });
+                    }
+                    container.append(list);
+                    $('#urlModal').show();
+                });
+            });
+
+            $('#closeModal, #urlModal').on('click', function(event) {
+                if (event.target.id === 'closeModal' || event.target.id === 'urlModal') {
+                    $('#urlModal').hide();
+                }
+            });
+
+            new Chart(document.getElementById('statusPieChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: chartData.status_labels,
+                    datasets: [{
+                        data: chartData.status_values,
+                        backgroundColor: ['#0f766e', '#2563eb', '#f59e0b', '#dc2626'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+
+            new Chart(document.getElementById('requestsLineChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: chartData.timeline_labels,
+                    datasets: [{
+                        label: 'Requests',
+                        data: chartData.timeline_values,
+                        borderColor: '#0f766e',
+                        backgroundColor: 'rgba(15, 118, 110, 0.12)',
+                        fill: true,
+                        tension: 0.25
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

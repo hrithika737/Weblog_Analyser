@@ -1,0 +1,6 @@
+Flask>=3.0,<4.0
+pandas>=2.0,<3.0
+Werkzeug>=3.0,<4.0
+
+# Optional: install this to enable PDF export.
+# weasyprint>=62.0,<63.0

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Web Log Analyzer Report</title>
+    <style>
+        body {
+            color: #17202a;
+            font-family: Arial, sans-serif;
+            margin: 28px;
+        }
+        h1 {
+            border-bottom: 2px solid #17202a;
+            font-size: 24px;
+            margin: 0 0 18px;
+            padding-bottom: 10px;
+        }
+        h2 {
+            font-size: 16px;
+            margin: 24px 0 10px;
+        }
+        .summary {
+            display: table;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        .card {
+            border: 1px solid #d9e1ec;
+            border-radius: 6px;
+            display: table-cell;
+            padding: 12px;
+            width: 25%;
+        }
+        .card span {
+            color: #65748b;
+            display: block;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .card strong {
+            display: block;
+            font-size: 22px;
+            margin-top: 6px;
+        }
+        table {
+            border-collapse: collapse;
+            font-size: 11px;
+            width: 100%;
+        }
+        th,
+        td {
+            border: 1px solid #d9e1ec;
+            padding: 7px;
+            text-align: left;
+        }
+        th {
+            background: #17202a;
+            color: #ffffff;
+        }
+        .muted {
+            color: #65748b;
+        }
+    </style>
+</head>
+<body>
+    <h1>Web Log Analyzer Report</h1>
+
+    <div class="summary">
+        <div class="card">
+            <span>Total Requests</span>
+            <strong>{{ total_logs }}</strong>
+        </div>
+        <div class="card">
+            <span>Total Errors</span>
+            <strong>{{ total_errors }}</strong>
+        </div>
+        <div class="card">
+            <span>Tracked IPs</span>
+            <strong>{{ suspicious_count }}</strong>
+        </div>
+        <div class="card">
+            <span>Unique IPs</span>
+            <strong>{{ unique_ips }}</strong>
+        </div>
+    </div>
+
+    <h2>Status Distribution</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Status Group</th>
+                <th>Requests</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for label in charts.status_labels %}
+                <tr>
+                    <td>{{ label }}</td>
+                    <td>{{ charts.status_values[loop.index0] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Suspicious IP Review</h2>
+    {% if data %}
+        <table>
+            <thead>
+                <tr>
+                    <th>IP</th>
+                    <th>Requests</th>
+                    <th>Errors</th>
+                    <th>Login Hits</th>
+                    <th>Risk Score</th>
+                    <th>Risk Level</th>
+                    <th>Last Seen</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                    <tr>
+                        <td>{{ row.ip }}</td>
+                        <td>{{ row.request_count }}</td>
+                        <td>{{ row.error_count }}</td>
+                        <td>{{ row.failed_logins }}</td>
+                        <td>{{ row.risk_score }}</td>
+                        <td>{{ row.risk_level }}</td>
+                        <td>{{ row.last_seen }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="muted">No matching log records were available for this report.</p>
+    {% endif %}
+</body>
+</html>
