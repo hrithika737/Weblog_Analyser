@@ -80,7 +80,7 @@ Web-Log-Analyzer/
 ### Clone Repository
 
 ```bash
-git clone https://github.com/hrithika737/Web-Log-Analyzer.git
+git clone https://github.com/hrithika737/Weblog_Analyser.git
 ```
 
 ### Navigate to the Project
